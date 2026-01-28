@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ثبت حضور - تپسی</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Vazir', 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .status {
+      background: #f0f4ff;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .status-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .status-text {
+      color: #667eea;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .status-detail {
+      color: #666;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .camera-container {
+      position: relative;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      overflow: hidden;
+      background: #f5f5f5;
+      min-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #preview {
+      width: 100%;
+      height: auto;
+      display: none;
+      border-radius: 15px;
+    }
+
+    #video {
+      width: 100%;
+      height: auto;
+      display: none;
+    }
+
+    .camera-placeholder {
+      text-align: center;
+      color: #999;
+    }
+
+    .camera-placeholder svg {
+      width: 80px;
+      height: 80px;
+      opacity: 0.3;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .location-info {
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #666;
+      display: none;
+    }
+
+    .location-info.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .success {
+      text-align: center;
+      display: none;
+    }
+
+    .success.show {
+      display: block;
+    }
+
+    .success-icon {
+      font-size: 60px;
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚗 ثبت حضور تپسی</h1>
+      <p>لطفاً موقعیت و عکس خود را ثبت کنید</p>
+    </div>
+
+    <div class="status" id="status">
+      <div class="status-icon">📍</div>
+      <div class="status-text">در حال دریافت موقعیت...</div>
+      <div class="status-detail">لطفاً صبر کنید</div>
+    </div>
+
+    <div class="location-info" id="locationInfo">
+      <strong>📍 موقعیت شما:</strong><br>
+      <span id="coordinates"></span>
+    </div>
+
+    <div class="camera-container" id="cameraContainer">
+      <div class="camera-placeholder">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+        </svg>
+        <p>دوربین آماده است</p>
+      </div>
+      <video id="video" autoplay playsinline></video>
+      <img id="preview" alt="Preview">
+    </div>
+
+    <button class="btn btn-primary" id="takePictureBtn" onclick="takePicture()" disabled>
+      📸 گرفتن عکس
+    </button>
+
+    <button class="btn btn-primary" id="submitBtn" onclick="submitAttendance()" style="display:none" disabled>
+      ✅ ثبت حضور
+    </button>
+
+    <button class="btn btn-secondary" id="retakeBtn" onclick="retakePicture()" style="display:none">
+      🔄 گرفتن عکس دوباره
+    </button>
+
+    <div class="success" id="success">
+      <div class="success-icon">✅</div>
+      <h2>ثبت شد!</h2>
+      <p>حضور شما با موفقیت ثبت شد</p>
+    </div>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    let latitude = null;
+    let longitude = null;
+    let photoData = null;
+    let stream = null;
+
+    // دریافت اطلاعات کاربر از Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    
+    const userId = tg.initDataUnsafe?.user?.id || 'test_user';
+    const userName = tg.initDataUnsafe?.user?.first_name || 'کاربر';
+
+    // گرفتن GPS
+    function getLocation() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            
+            document.getElementById('status').innerHTML = `
+              <div class="status-icon">✅</div>
+              <div class="status-text">موقعیت دریافت شد</div>
+              <div class="status-detail">آماده گرفتن عکس</div>
+            `;
+            
+            document.getElementById('locationInfo').classList.add('show');
+            document.getElementById('coordinates').textContent = 
+              `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+            
+            // فعال کردن دوربین
+            startCamera();
+          },
+          (error) => {
+            document.getElementById('status').innerHTML = `
+              <div class="status-icon">❌</div>
+              <div class="status-text">خطا در دریافت موقعیت</div>
+              <div class="status-detail">${error.message}</div>
+            `;
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        alert("مرورگر شما از GPS پشتیبانی نمی‌کند");
+      }
+    }
+
+    // باز کردن دوربین
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "user" }, // سلفی
+          audio: false 
+        });
+        
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        video.style.display = 'block';
+        document.querySelector('.camera-placeholder').style.display = 'none';
+        
+        document.getElementById('takePictureBtn').disabled = false;
+      } catch (error) {
+        alert("خطا در باز کردن دوربین: " + error.message);
+      }
+    }
+
+    // گرفتن عکس
+    function takePicture() {
+      const video = document.getElementById('video');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0);
+      
+      photoData = canvas.toDataURL('image/jpeg', 0.8);
+      
+      // نمایش پیش‌نمایش
+      const preview = document.getElementById('preview');
+      preview.src = photoData;
+      preview.style.display = 'block';
+      video.style.display = 'none';
+      
+      // بستن دوربین
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      // تغییر دکمه‌ها
+      document.getElementById('takePictureBtn').style.display = 'none';
+      document.getElementById('submitBtn').style.display = 'block';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('retakeBtn').style.display = 'block';
+    }
+
+    // گرفتن عکس دوباره
+    function retakePicture() {
+      document.getElementById('preview').style.display = 'none';
+      document.getElementById('submitBtn').style.display = 'none';
+      document.getElementById('retakeBtn').style.display = 'none';
+      document.getElementById('takePictureBtn').style.display = 'block';
+      
+      photoData = null;
+      startCamera();
+    }
+
+    // ارسال حضور
+    async function submitAttendance() {
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').innerHTML = '<div class="spinner"></div>';
+      
+      try {
+        const response = await fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            user_name: userName,
+            latitude: latitude,
+            longitude: longitude,
+            photo: photoData,
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        if (response.ok) {
+          // نمایش موفقیت
+          document.querySelector('.status').style.display = 'none';
+          document.querySelector('.location-info').style.display = 'none';
+          document.getElementById('cameraContainer').style.display = 'none';
+          document.getElementById('submitBtn').style.display = 'none';
+          document.getElementById('retakeBtn').style.display = 'none';
+          document.getElementById('success').classList.add('show');
+          
+          // بستن بعد از 2 ثانیه
+          setTimeout(() => {
+            tg.close();
+          }, 2000);
+        } else {
+          alert('خطا در ثبت حضور. لطفاً دوباره تلاش کنید.')
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('submitBtn').innerHTML = '✅ ثبت حضور';
+        }
+      } catch (error) {
+        alert('خطا: ' + error.message);
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitBtn').innerHTML = '✅ ثبت حضور';
+      }
+    }
+
+    // شروع
+    getLocation();
+  </script>
+</body>
+</html>
